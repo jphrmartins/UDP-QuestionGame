@@ -4,7 +4,8 @@ public enum MessageType {
     STOP(0),
     CLIENT_MESSAGE(1),
     SERVER_MESSAGE(2),
-    CLIENT_STOP(3);
+    CLIENT_STOP(3),
+    ACK(4);
 
     private int value;
 
