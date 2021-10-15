@@ -2,10 +2,8 @@ package pucrs.redes.network;
 
 public enum MessageType {
     STOP(0),
-    CLIENT_MESSAGE(1),
-    SERVER_MESSAGE(2),
-    CLIENT_STOP(3),
-    ACK(4);
+    MESSAGE(1),
+    ACK(2);
 
     private int value;
 

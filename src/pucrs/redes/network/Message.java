@@ -1,29 +1,23 @@
 package pucrs.redes.network;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 
 public class Message {
-    private int port;
-    private InetAddress from;
+    private InetSocketAddress from;
     private MessageData messageData;
 
-    public Message(int port, InetAddress from, String data) {
-        this.port = port;
-        this.from = from;
-        this.messageData = buildMessageData(data);
+    public Message(InetSocketAddress inetSocketAddress, String data) {
+        this.from = inetSocketAddress;
+        this.messageData = MessageData.buildFrom(data);
     }
 
-    public Message(int port, InetAddress from, MessageData data) {
-        this.port = port;
-        this.from = from;
+    public Message(InetSocketAddress inetSocketAddress, MessageData data) {
+        this.from = inetSocketAddress;
         this.messageData = data;
     }
 
-    public int getPort() {
-        return port;
-    }
-
-    public InetAddress getFrom() {
+    public InetSocketAddress getFrom() {
         return from;
     }
 
@@ -31,14 +25,18 @@ public class Message {
         return messageData;
     }
 
-    private MessageData buildMessageData(String data) {
-        String[] messageData =  data.split(";;");
-        MessageType type = getMessageType(messageData[1]);
-        return new MessageData(messageData[0], type);
+    public byte[] getByteMessage() {
+        return messageData.toBytes();
     }
 
-    private MessageType getMessageType(String type) {
-        int messageType = Integer.parseInt(type);
-        return MessageType.from(messageType);
+    public String getMessageId() {
+        return messageData.getId();
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "messageData=" + messageData +
+                '}';
     }
 }

@@ -1,24 +1,32 @@
 package pucrs.redes.server;
 
 import pucrs.redes.network.Message;
+import pucrs.redes.network.MessageData;
 import pucrs.redes.network.NetworkPacketManager;
 
-public class Server extends Thread {
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
-    private NetworkPacketManager networkPacketManeger;
+public class Server extends NetworkPacketManager {
 
-    public Server(NetworkPacketManager networkPacketManeger) {
-        super("Server Thread");
-        this.networkPacketManeger = networkPacketManeger;
+    public Map<InetSocketAddress, CurrentPlayerState> states;
+
+    public Server() {
+        super(NetworkPacketManager.SERVER_PORT);
+        states = new HashMap<>();
     }
 
     @Override
-    public void run() {
-        while (true) {
-            if (networkPacketManeger.hasMessageToCompute()) {
-                Message message = networkPacketManeger.getNextMessage();
+    protected void handleMessage(Message message) throws IOException {
+        String messageData = message.getMessageData().getData();
+        System.out.println(messageData);
+        sendMessage(MessageData.buildMessage("Received"), message.getFrom());
+    }
 
-            }
-        }
+    @Override
+    protected void callWhenStop() throws IOException {
+
     }
 }

@@ -1,68 +1,122 @@
 package pucrs.redes.network;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.SocketAddress;
-import java.net.SocketException;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.net.*;
+import java.util.*;
 
-public class NetworkPacketManager extends Thread {
-
-    private static final int bufferSize = 65000;
+public abstract class NetworkPacketManager extends Thread {
+    public static final Integer SERVER_PORT = 5321;
+    private static final int DELAY_TO_RESEND_MESSAGE = 5000;
+    private Map<String, TimerTask> messagesToResend;
+    private static final int bufferSize = 2048;
+    private Timer timer;
     private DatagramSocket socket;
-    private Queue<Message> messageQueue;
-    private boolean shouldStop;
+    protected boolean shouldStop;
 
-    public NetworkPacketManager(int portToListen) {
+    protected NetworkPacketManager(int portToListen) {
         try {
             this.socket = new DatagramSocket(portToListen);
-            messageQueue = new LinkedList<>();
             shouldStop = false;
+            messagesToResend = new HashMap<>();
+            timer = new Timer();
         } catch (SocketException e) {
             System.out.println("Could not bind to port " + portToListen);
             e.printStackTrace();
         }
     }
 
-    public void sendMessage(Message message) throws SocketException {
-        //just send The message
+    protected abstract void handleMessage(Message message) throws IOException;
+
+    protected abstract void callWhenStop() throws IOException;
+
+    public void sendMessage(MessageData message, InetSocketAddress recipient) throws IOException {
+        byte[] data = message.toBytes();
+        DatagramPacket packet = new DatagramPacket(data, 0, data.length, recipient);
+        String id = message.getId();
+        TimerTask messageToResendTask = createResendTask(new Message(recipient, message));
+        messagesToResend.put(id, messageToResendTask);
+        socket.send(packet);
+        loadReSender(messageToResendTask);
     }
 
-    public void gracefulStop() {
-        //Stop to server
+    public void stopListening() throws IOException {
+        shouldStop = true;
+        callWhenStop();
     }
 
     @Override
     public void run() {
         DatagramPacket packet = new DatagramPacket(new byte[bufferSize], bufferSize);
+        System.out.println("Will Start To Listen");
         while (!this.shouldStop) {
             try {
                 socket.receive(packet);
-                String data = new String(packet.getData());
-                Message message = new Message(packet.getPort(), packet.getAddress(), data);
-                handleMessage(message);
+                System.out.println("Packet received");
+                byte[] byteData = packet.getData();
+                String data = new String(trimData(byteData));
+                InetSocketAddress socketAddress = new InetSocketAddress(packet.getAddress(), packet.getPort());
+                Message message = new Message(socketAddress, data);
+                handleReceivedPacket(message);
+                packet = new DatagramPacket(new byte[bufferSize], bufferSize);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
 
-    private void handleMessage(Message message) {
-        if (message.getMessageData().getType() == MessageType.STOP) {
+    private byte[] trimData(byte[] byteData) {
+        int i = byteData.length - 1;
+        while (i >=0 && byteData[i] == 0) {
+            i--;
+        }
+        return Arrays.copyOf(byteData, i +1);
+    }
+
+    private void handleReceivedPacket(Message message) throws IOException {
+        if (message.getMessageData().getType() == MessageType.ACK) {
+            handleAck(message);
+        } else if (message.getMessageData().getType() == MessageType.STOP) {
             this.shouldStop = true;
             System.out.println("Will stop listener");
         } else {
-            messageQueue.add(message);
+            sendAck(message);
+            handleMessage(message);
         }
     }
 
-    public boolean hasMessageToCompute() {
-        return !messageQueue.isEmpty();
+    private void handleAck(Message message) {
+        String messageId = message.getMessageId();
+        System.out.println("Removing ACK");
+        messagesToResend.remove(messageId);
     }
 
-    public Message getNextMessage() {
-        return messageQueue.poll();
+    private void sendAck(Message message) throws IOException {
+        MessageData messageToAck = MessageData.buildAckMessageFor(message.getMessageData().getId());
+        byte[] data = messageToAck.toBytes();
+        DatagramPacket packet = new DatagramPacket(data, 0, data.length, message.getFrom());
+        socket.send(packet);
+    }
+
+    private void loadReSender(TimerTask messageToResendTask) {
+        timer.schedule(messageToResendTask, DELAY_TO_RESEND_MESSAGE);
+    }
+
+    private TimerTask createResendTask(Message message) {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                String messageId = message.getMessageId();
+                if (messagesToResend.containsKey(messageId)) {
+                    messagesToResend.remove(messageId);
+                    try {
+                        System.out.println("Will Resend data, waiting for ack");
+                        sendMessage(MessageData.buildMessage(message.getMessageData().getData()), message.getFrom());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                // task was cancelled.
+            }
+        };
     }
 }
