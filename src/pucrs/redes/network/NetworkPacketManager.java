@@ -51,7 +51,6 @@ public abstract class NetworkPacketManager extends Thread {
         while (!this.shouldStop) {
             try {
                 socket.receive(packet);
-                System.out.println("Packet received");
                 byte[] byteData = packet.getData();
                 String data = new String(trimData(byteData));
                 InetSocketAddress socketAddress = new InetSocketAddress(packet.getAddress(), packet.getPort());
@@ -66,10 +65,10 @@ public abstract class NetworkPacketManager extends Thread {
 
     private byte[] trimData(byte[] byteData) {
         int i = byteData.length - 1;
-        while (i >=0 && byteData[i] == 0) {
+        while (i >= 0 && byteData[i] == 0) {
             i--;
         }
-        return Arrays.copyOf(byteData, i +1);
+        return Arrays.copyOf(byteData, i + 1);
     }
 
     private void handleReceivedPacket(Message message) throws IOException {
@@ -86,7 +85,6 @@ public abstract class NetworkPacketManager extends Thread {
 
     private void handleAck(Message message) {
         String messageId = message.getMessageId();
-        System.out.println("Removing ACK");
         messagesToResend.remove(messageId);
     }
 
@@ -107,10 +105,12 @@ public abstract class NetworkPacketManager extends Thread {
             public void run() {
                 String messageId = message.getMessageId();
                 if (messagesToResend.containsKey(messageId)) {
-                    messagesToResend.remove(messageId);
+                    TimerTask data = messagesToResend.remove(messageId);
                     try {
-                        System.out.println("Will Resend data, waiting for ack");
-                        sendMessage(MessageData.buildMessage(message.getMessageData().getData()), message.getFrom());
+                        if (data != null) {
+                            System.out.println("Will Resend data, waiting for ack");
+                            sendMessage(MessageData.buildMessage(message.getMessageData().getData()), message.getFrom());
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

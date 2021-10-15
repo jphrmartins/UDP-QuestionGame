@@ -7,11 +7,13 @@ import pucrs.redes.network.NetworkPacketManager;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Server extends NetworkPacketManager {
 
     public Map<InetSocketAddress, CurrentPlayerState> states;
+    private List<MessageHandler> handlers;
 
     public Server() {
         super(NetworkPacketManager.SERVER_PORT);
@@ -21,7 +23,7 @@ public class Server extends NetworkPacketManager {
     @Override
     protected void handleMessage(Message message) throws IOException {
         String messageData = message.getMessageData().getData();
-        System.out.println(messageData);
+        System.out.println("Message received from: " + message.getFrom().toString() + " : " + messageData);
         sendMessage(MessageData.buildMessage("Received"), message.getFrom());
     }
 
