@@ -1,0 +1,1 @@
+java -classpath /home/jp/facurdade/redes/UDP-QuestionGame/out/production/UDP-QuestionGame pucrs.redes.server.ServerApp

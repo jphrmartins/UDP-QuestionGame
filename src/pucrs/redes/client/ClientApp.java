@@ -10,11 +10,10 @@ import java.util.Scanner;
 public class ClientApp {
 
     public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        Client client = new Client(1235);
+        int port = Integer.parseInt(args[0]);
+        System.out.println("port" + port);
+        Client client = new Client(port);
         client.start();
-        System.out.println("Send Message to server: ");
-        String data = scanner.nextLine();
-        client.sendMessage(MessageData.buildMessage(data), new InetSocketAddress(NetworkPacketManager.SERVER_PORT));
+        client.sendMessage(MessageData.buildMessage("start"), new InetSocketAddress(NetworkPacketManager.SERVER_PORT));
     }
 }

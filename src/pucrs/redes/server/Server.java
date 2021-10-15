@@ -3,6 +3,7 @@ package pucrs.redes.server;
 import pucrs.redes.network.Message;
 import pucrs.redes.network.MessageData;
 import pucrs.redes.network.NetworkPacketManager;
+import pucrs.redes.network.ServerType;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -16,7 +17,7 @@ public class Server extends NetworkPacketManager {
     private List<MessageHandler> handlers;
 
     public Server() {
-        super(NetworkPacketManager.SERVER_PORT);
+        super(NetworkPacketManager.SERVER_PORT, ServerType.SERVER);
         states = new HashMap<>();
     }
 

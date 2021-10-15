@@ -4,19 +4,22 @@ import java.io.IOException;
 import java.net.*;
 import java.util.*;
 
+
 public abstract class NetworkPacketManager extends Thread {
     public static final Integer SERVER_PORT = 5321;
     private static final int DELAY_TO_RESEND_MESSAGE = 5000;
     private Map<String, TimerTask> messagesToResend;
     private static final int bufferSize = 2048;
     private Timer timer;
+    private ServerType serverType;
     private DatagramSocket socket;
     protected boolean shouldStop;
 
-    protected NetworkPacketManager(int portToListen) {
+    protected NetworkPacketManager(int portToListen, ServerType serverType) {
         try {
             this.socket = new DatagramSocket(portToListen);
             shouldStop = false;
+            this.serverType = serverType;
             messagesToResend = new HashMap<>();
             timer = new Timer();
         } catch (SocketException e) {
@@ -74,7 +77,7 @@ public abstract class NetworkPacketManager extends Thread {
     private void handleReceivedPacket(Message message) throws IOException {
         if (message.getMessageData().getType() == MessageType.ACK) {
             handleAck(message);
-        } else if (message.getMessageData().getType() == MessageType.STOP) {
+        } else if (message.getMessageData().getType() == MessageType.STOP_SERVER && this.serverType != ServerType.SERVER) {
             this.shouldStop = true;
             System.out.println("Will stop listener");
         } else {

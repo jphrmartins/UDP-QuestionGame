@@ -1,6 +1,4 @@
 package pucrs.redes.network;
-
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 public class Message {
