@@ -1,1 +1,1 @@
-find ../src -name *.java | xargs javac -d ../out/production/UDP-QuestionGame -classpath "${CLASSPATH}"
+find ./src -name *.java | xargs javac -d ./out/production/UDP-QuestionGame -classpath "${CLASSPATH}"
