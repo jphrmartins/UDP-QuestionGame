@@ -1,7 +1,6 @@
 package pucrs.redes.server;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,14 +13,12 @@ import pucrs.redes.server.game.Game;
 
 public class Server extends NetworkPacketManager {
 
-    public Map<InetSocketAddress, CurrentPlayerState> states;
     private List<MessageHandler> handlers;
      // dict with port of player, the game and current state of game
     private Map<Integer, Game> games;
 
     public Server() {
         super(NetworkPacketManager.SERVER_PORT, ServerType.SERVER);
-        states = new HashMap<>();
         this.games = new HashMap<>();
     }
 
@@ -29,7 +26,7 @@ public class Server extends NetworkPacketManager {
     protected void handleMessage(Message message) throws IOException {
         String messageData = message.getMessageData().getData();
         System.out.println("Message received from: " + message.getFrom().toString() + " : " + messageData);
-        sendMessage(MessageData.buildMessage("Received"), message.getFrom());
+       // sendMessage(MessageData.buildMessage("Received"), message.getFrom());
 
         treatMessage(message);
     }
