@@ -27,7 +27,7 @@ public class Game {
     
     private Map<String, List<String>> loadQuestions(){
         
-        try(BufferedReader br = new BufferedReader(new FileReader("/questions/" + dificult + ".txt"))) {
+        try(BufferedReader br = new BufferedReader(new FileReader("questions/" + dificult + ".txt"))) {
             String line = br.readLine();
         
             while (line != null) {
@@ -35,6 +35,7 @@ public class Game {
                 String question = tokens[0];
                 List<String> answers = Arrays.asList(Arrays.copyOfRange(tokens, 1, tokens.length));
                 questions.put(question, answers);
+                line = br.readLine();
             }
 
         } catch (Exception e){
