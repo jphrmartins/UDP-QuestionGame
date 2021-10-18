@@ -22,6 +22,7 @@ public class Server extends NetworkPacketManager {
     public Server() {
         super(NetworkPacketManager.SERVER_PORT, ServerType.SERVER);
         states = new HashMap<>();
+        this.games = new HashMap<>();
     }
 
     @Override
@@ -53,17 +54,18 @@ public class Server extends NetworkPacketManager {
                 sendMessage(MessageData.buildMessage("Error game already have a dificult level"), message.getFrom());
             }
         } else if(data.equals("a") || data.equals("b") || data.equals("c") || data.equals("d") ){
+            String msg = "";
             if(checkAnswer(message)){
-                sendMessage(MessageData.buildMessage("Good job!"), message.getFrom());
+                msg += "Good Job!\n\n";
             } else{
-                sendMessage(MessageData.buildMessage("better next time!"), message.getFrom());
+                msg += "better next time!\n\n";
             }
             String question = getNewQuestion(message);
             if(question.equalsIgnoreCase("end game")){
                 Game game = games.get(message.getFrom().getPort());
                 sendMessage(MessageData.buildMessage("\n\nGame Over\n\n your accuracy: " + game.getPoints()), message.getFrom());
             } else{
-                sendMessage(MessageData.buildMessage(question), message.getFrom());
+                sendMessage(MessageData.buildMessage(msg + question), message.getFrom());
             }
         }
         else{
