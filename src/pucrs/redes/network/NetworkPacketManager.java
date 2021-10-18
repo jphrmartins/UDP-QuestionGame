@@ -30,21 +30,21 @@ public abstract class NetworkPacketManager extends Thread {
 
     protected abstract void handleMessage(Message message) throws IOException;
 
-    protected abstract void callWhenStop() throws IOException;
+    protected void callWhenStop(Message message) {
+    }
 
     public void sendMessage(MessageData message, InetSocketAddress recipient) throws IOException {
         byte[] data = message.toBytes();
         DatagramPacket packet = new DatagramPacket(data, 0, data.length, recipient);
         String id = message.getId();
+        Message messageToSend = new Message(recipient, message);
+        if (message.getType() == MessageType.STOP_GAME) {
+            callWhenStop(messageToSend);
+        }
         TimerTask messageToResendTask = createResendTask(new Message(recipient, message));
         messagesToResend.put(id, messageToResendTask);
         socket.send(packet);
         loadReSender(messageToResendTask);
-    }
-
-    public void stopListening() throws IOException {
-        shouldStop = true;
-        callWhenStop();
     }
 
     @Override
@@ -64,6 +64,9 @@ public abstract class NetworkPacketManager extends Thread {
                 e.printStackTrace();
             }
         }
+        System.out.println("Stopping listening");
+        this.socket.disconnect();
+        this.socket.close();
     }
 
     private byte[] trimData(byte[] byteData) {
@@ -77,11 +80,13 @@ public abstract class NetworkPacketManager extends Thread {
     private void handleReceivedPacket(Message message) throws IOException {
         if (message.getMessageData().getType() == MessageType.ACK) {
             handleAck(message);
-        } else if (message.getMessageData().getType() == MessageType.STOP_SERVER && this.serverType != ServerType.SERVER) {
-            this.shouldStop = true;
-            System.out.println("Will stop listener");
+
         } else {
             sendAck(message);
+            if (message.getMessageData().getType() == MessageType.STOP_GAME && this.serverType != ServerType.SERVER) {
+                this.shouldStop = true;
+                System.out.println("Will stop listener");
+            }
             handleMessage(message);
         }
     }

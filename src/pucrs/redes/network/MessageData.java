@@ -27,8 +27,9 @@ public class MessageData {
         return new MessageData(messageData[0], messageData[1], type);
     }
 
-    public static MessageData buildStop() {
-        return new MessageData("", "", MessageType.STOP);
+    public MessageData toFinish() {
+        this.type = MessageType.STOP_GAME;
+        return this;
     }
 
     public String getId() {

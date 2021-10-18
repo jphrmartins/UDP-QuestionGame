@@ -23,53 +23,74 @@ public class Server extends NetworkPacketManager {
     }
 
     @Override
+    protected void callWhenStop(Message message) {
+        int port = message.getFrom().getPort();
+        System.out.println("Removing " + port + " from game " + games.size());
+        games.remove(port);
+        System.out.println("after removed " + games.size());
+    }
+
+    @Override
     protected void handleMessage(Message message) throws IOException {
         String messageData = message.getMessageData().getData();
         System.out.println("Message received from: " + message.getFrom().toString() + " : " + messageData);
-       // sendMessage(MessageData.buildMessage("Received"), message.getFrom());
 
-        treatMessage(message);
+        try {
+            treatMessage(message);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            System.out.println("Error dealing with some kind of message, ending gaming for " + message
+                    .getFrom());
+            sendMessage(MessageData.buildMessage("System error, stopping the game").toFinish(), message.getFrom());
+        }
     }
 
     public void treatMessage(Message message) throws IOException{
         String data = message.getMessageData().getData().toLowerCase();
-        
+
         if(data.equals("init")){
             if (initGameToClient(message.getFrom().getPort())){
-                sendMessage(MessageData.buildMessage("Game started, please send a dificult level\n\n easy, medium or hard?"),
-                            message.getFrom());
+                sendMessage(MessageData.buildMessage("Game started, please send a difficult level\n\n easy, medium or hard?"),
+                        message.getFrom());
             } else{
                 sendMessage(MessageData.buildMessage("Error game already started"), message.getFrom());
             }
         }
         else if(data.equals("easy") || data.equals("medium") || data.equals("hard")){
             if(chooseDificultLevel(message)){
-                sendMessage(MessageData.buildMessage("Game started with the choosed dificult"), message.getFrom());
                 String question = getNewQuestion(message);
-                sendMessage(MessageData.buildMessage(question), message.getFrom());
+                String sendMessage = "Game started with the chosen difficult\n\n" + question;
+                sendMessage(MessageData.buildMessage(sendMessage), message.getFrom());
             } else{
-                sendMessage(MessageData.buildMessage("Error game already have a dificult level"), message.getFrom());
+                sendMessage(MessageData.buildMessage("Error game already have a difficult level").toFinish(),
+                        message.getFrom());
             }
         } else if(data.equals("a") || data.equals("b") || data.equals("c") || data.equals("d") ){
             String msg = "";
             if(checkAnswer(message)){
                 msg += "Good Job!\n\n";
             } else{
-                msg += "better next time!\n\n";
+                String rightAnswer = getRightAnswer(message.getFrom().getPort());
+                msg += "Wrong, the right answer was " + rightAnswer + " study harder to be better on the next time!\n\n";
             }
             String question = getNewQuestion(message);
             if(question.equalsIgnoreCase("end game")){
                 Game game = games.get(message.getFrom().getPort());
-                sendMessage(MessageData.buildMessage("\n\nGame Over\n\n your accuracy: " + game.getPoints()), message.getFrom());
+                sendMessage(MessageData.buildMessage(msg + "\n\nGame Over\n\n your accuracy: " + game.getPoints()).toFinish(),
+                        message.getFrom());
             } else{
                 sendMessage(MessageData.buildMessage(msg + question), message.getFrom());
             }
         }
         else{
-            sendMessage(MessageData.buildMessage("Error invalid option"), message.getFrom());
+            sendMessage(MessageData.buildMessage("Error invalid option").toFinish(), message.getFrom());
         }
-                
-    }  
+
+    }
+
+    private String getRightAnswer(int port) {
+        return games.get(port).getAnswerOfLastQuestion();
+    }
 
     public boolean initGameToClient(int port){
         if(games.containsKey(port)){
@@ -108,10 +129,5 @@ public class Server extends NetworkPacketManager {
         }
         Game game = games.get(message.getFrom().getPort());
         return game.newQuestion();
-    }
-
-    @Override
-    protected void callWhenStop() throws IOException {
-
     }
 }

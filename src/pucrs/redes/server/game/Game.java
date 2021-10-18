@@ -14,13 +14,11 @@ public class Game {
     private Map<String, List<String>> questions;
     private Set<String> solvedQuestions;
     private String lastQuestion;
-    private int gameState;
     private int rightQuestions;
 
     public Game(){
         this.questions = new HashMap<>();
         this.solvedQuestions = new HashSet<>();
-        this.gameState = -1;
         this.rightQuestions = 0;
     }
 
@@ -46,7 +44,6 @@ public class Game {
 
     public void chooseDificultLevel(String dificult){
         this.dificult = dificult;
-        this.gameState = 0;
         loadQuestions();
     }
 
@@ -55,7 +52,8 @@ public class Game {
         for (String question : questions.keySet()) {
             if(!solvedQuestions.contains(question)){
                 List<String> answers = questions.get(question);
-                return question + "\n\n" + answers.subList(0, answers.size() - 1).toString();
+                this.lastQuestion = question;
+                return question + "\n\n" + answers.subList(0, answers.size() - 1);
             }
         }
         return "end game";
@@ -67,7 +65,7 @@ public class Game {
 
     public boolean verifyAnswer(String answer){
         List<String> answers = questions.get(this.lastQuestion);
-        String rightAnswer = answers.get(answer.length() - 1);
+        String rightAnswer = answers.get(answers.size() - 1);
         if(answer.equals(rightAnswer)){
             this.rightQuestions += 1;
             return true;
@@ -75,5 +73,9 @@ public class Game {
         return false;
     }
 
-    
+
+    public String getAnswerOfLastQuestion() {
+        List<String> answers = questions.get(this.lastQuestion);
+        return answers.get(answers.size() - 1);
+    }
 }

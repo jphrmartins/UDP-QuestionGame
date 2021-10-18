@@ -1,10 +1,9 @@
 package pucrs.redes.network;
 
 public enum MessageType {
-    STOP(0),
+    STOP_GAME(0),
     MESSAGE(1),
-    ACK(2),
-    STOP_SERVER(3);
+    ACK(2);
 
     private int value;
 
@@ -20,6 +19,6 @@ public enum MessageType {
         for (MessageType type: values()) {
             if (type.getValue() == number) return type;
         }
-        return MessageType.STOP;
+        return MessageType.STOP_GAME;
     }
 }
