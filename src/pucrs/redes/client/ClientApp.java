@@ -13,6 +13,6 @@ public class ClientApp {
         System.out.println("port" + 1235);
         Client client = new Client(1235);
         client.start();
-        client.sendMessage(MessageData.buildMessage("start"), new InetSocketAddress(NetworkPacketManager.SERVER_PORT));
+        client.sendMessage(MessageData.buildMessage("init"), new InetSocketAddress(NetworkPacketManager.SERVER_PORT));
     }
 }
