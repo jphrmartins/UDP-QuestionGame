@@ -1,0 +1,3 @@
+Qual das seguintes características é encontrada no IP?; a) Controle de erro;b) Reconhecimento de pacotes no nó destino;c) Retransmissão de pacotes perdidos; d) Fragmentação de pacotes;d
+Dado o endereço IP 172.16.0.10/29, qual é o endereço de rede?;a) 172.16.0.8;b) 172.16.0.9;c) 172.16.0.11; d) 172.16.0.1;c
+TCP, HTTP, IPV4 qual desses protocolos possibilitam identificar o navegador e o servidor web?;a) TCP; b) HTTP;c)IPV4;d) todos;b
