@@ -1,4 +1,3 @@
-Sub-rede do endereço IP de classe C 195.1.1.0 Para que você tenha pelo menos 2 sub-redes, cada sub-rede deve ter espaço para 48 hosts.
-Quais são as duas máscaras de sub-rede possíveis?;a) 255.255.255.127 e 255.255.255.198;b) 255.255.255.128 e 255.255.255.192;c) 255.255.255.192 e 255.255.255.127;b
+Sub-rede do endereço IP de classe C 195.1.1.0 Para que você tenha pelo menos 2 sub-redes, cada sub-rede deve ter espaço para 48 hosts. \n Quais são as duas máscaras de sub-rede possíveis?;a) 255.255.255.127 e 255.255.255.198;b) 255.255.255.128 e 255.255.255.192;c) 255.255.255.192 e 255.255.255.127;b
 Dada a máscara de sub-rede 255.255.255.192 Qual é o endereço do host e a sub-rede do seguinte endereço IP 197.1.2.67;a) subnet 1 e host 3;b) subnet 2 e host 3;c) subnet 1 e host 2;a
 Qual dos seguintes pares de máscaras de sub-rede suporta 50 endereços IP cada uma?;a) 255.255.255.0 e 255.255.255.240;b) 255.255.255.0 e 255.255.255.192;c) 255.255.255.192 e 255.255.255.224;d) 255.255.255.192 e 255.255.255.248; e) 255.255.255.252 e 255.255.255.0;c
